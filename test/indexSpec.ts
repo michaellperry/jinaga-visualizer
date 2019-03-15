@@ -163,4 +163,49 @@ describe("Jinaga Visualizer", () => {
             }
         ])
     });
+
+    it("should handle simultaneous adds", async () => {
+        const tag = {
+            type: "Blog.Tag",
+            name: "React"
+        };
+        const postTags = await j.fact({
+            type: "Blog.Post.Tags",
+            tags: [ tag ]
+        });
+
+        expect(nodes).to.deep.equal(<VisualizerNode[]>[
+            {
+                fact: {
+                    type: "Blog.Tag",
+                    hash: j.hash(tag),
+                    fields: {
+                        name: "React"
+                    },
+                    predecessors: {}
+                },
+                successors: {
+                    "tags:Blog.Post.Tags": [
+                        j.hash(postTags)
+                    ]
+                }
+            },
+            {
+                fact: {
+                    type: "Blog.Post.Tags",
+                    hash: j.hash(postTags),
+                    fields: {},
+                    predecessors: {
+                        tags: [
+                            {
+                                type: "Blog.Tag",
+                                hash: j.hash(tag)
+                            }
+                        ]
+                    }
+                },
+                successors: {}
+            }
+        ])
+    });
 });
