@@ -5,6 +5,12 @@ export type Mutator<T> = (transformer: (oldValue: T) => T) => void;
 
 export function factAdded(setNodes: Mutator<VisualizerNode[]>) {
     return (factRecord: FactRecord) => {
-        
+        setNodes(oldValue => [
+            ...oldValue,
+            {
+                fact: factRecord,
+                successors: {}
+            }
+        ]);
     }
 }
