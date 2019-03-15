@@ -1,5 +1,5 @@
-import { VisualizerNode } from "./visualizer-node";
 import { FactRecord, FactReference } from "jinaga";
+import { SuccessorCollection, VisualizerNode } from "./visualizer-node";
 
 export type Mutator<T> = (transformer: (oldValue: T) => T) => void;
 
@@ -23,13 +23,27 @@ function addSuccessors(factRecord: FactRecord): Transformer {
     return oldValue => oldValue.map(oldNode => ({
         ...oldNode,
         successors: Array.from(predecessorRoles(oldNode.fact, factRecord))
-            .reduce((successors, role) => ({
-                ...successors,
-                [`${role}:${factRecord.type}`]: [
-                    factRecord.hash
-                ]
-            }), oldNode.successors)
+            .reduce((successors, role) => addSuccessor(successors, role, factRecord), oldNode.successors)
     }));
+}
+
+function addSuccessor(
+    successors: SuccessorCollection,
+    role: string,
+    successorReference: FactReference
+) {
+    const roleAndType = `${role}:${successorReference.type}`;
+    const oldHashes = successors[roleAndType];
+    const hashes = oldHashes ? [
+        ...oldHashes,
+        successorReference.hash
+    ] : [
+        successorReference.hash
+    ];
+    return {
+        ...successors,
+        [roleAndType]: hashes
+    };
 }
 
 function* predecessorRoles(targetReference: FactReference, newRecord: FactRecord) {
