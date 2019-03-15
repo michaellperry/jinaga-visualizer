@@ -8,3 +8,7 @@ export interface VisualizerNode {
     fact: FactRecord;
     successors: SuccessorCollection;
 }
+
+export type VisualizerGraph = {
+    [typeAndHash: string]: VisualizerNode
+};

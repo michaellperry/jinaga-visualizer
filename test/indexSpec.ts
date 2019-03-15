@@ -1,19 +1,19 @@
 import { expect } from "chai";
-import { factAdded } from "../src/fact-added";
-import { VisualizerNode } from "../src/visualizer-node";
 import { Jinaga, JinagaBrowser } from "jinaga";
+import { factAdded } from "../src/fact-added";
+import { VisualizerGraph } from "../src/visualizer-node";
 
 describe("Jinaga Visualizer", () => {
-    let nodes = [] as VisualizerNode[];
+    let nodes = {} as VisualizerGraph;
     let j = null as Jinaga;
     let dispose = () => {};
 
-    function setNodes(transformer: (oldValue: VisualizerNode[]) => VisualizerNode[]) {
+    function setNodes(transformer: (oldValue: VisualizerGraph) => VisualizerGraph) {
         nodes = transformer(nodes);
     }
 
     beforeEach(() => {
-        nodes = [];
+        nodes = {};
         j = JinagaBrowser.create({});
         dispose = j.onFactAdded(factAdded(setNodes));
     });
@@ -23,7 +23,7 @@ describe("Jinaga Visualizer", () => {
     });
 
     it("should start as an empty array", () => {
-        expect(nodes).to.deep.equal([]);
+        expect(nodes).to.deep.equal({});
     });
 
     it("should add a node when a fact is added", async () => {
@@ -32,8 +32,8 @@ describe("Jinaga Visualizer", () => {
             name: "React"
         });
 
-        expect(nodes).to.deep.equal(<VisualizerNode[]>[
-            {
+        expect(nodes).to.deep.equal(<VisualizerGraph>{
+            [`Blog.Tag:${j.hash(tag)}`]: {
                 fact: {
                     type: "Blog.Tag",
                     hash: j.hash(tag),
@@ -44,7 +44,7 @@ describe("Jinaga Visualizer", () => {
                 },
                 successors: {}
             }
-        ]);
+        });
     });
 
     it("should add a successor to an existing visualizer node", async () => {
@@ -57,8 +57,8 @@ describe("Jinaga Visualizer", () => {
             tags: [ tag ]
         });
 
-        expect(nodes).to.deep.equal(<VisualizerNode[]>[
-            {
+        expect(nodes).to.deep.equal(<VisualizerGraph>{
+            [`Blog.Tag:${j.hash(tag)}`]: {
                 fact: {
                     type: "Blog.Tag",
                     hash: j.hash(tag),
@@ -73,7 +73,7 @@ describe("Jinaga Visualizer", () => {
                     ]
                 }
             },
-            {
+            [`Blog.Post.Tags:${j.hash(postTags)}`]: {
                 fact: {
                     type: "Blog.Post.Tags",
                     hash: j.hash(postTags),
@@ -89,7 +89,7 @@ describe("Jinaga Visualizer", () => {
                 },
                 successors: {}
             }
-        ])
+        })
     });
 
     it("should add a second successor to an existing visualizer node", async () => {
@@ -108,8 +108,8 @@ describe("Jinaga Visualizer", () => {
             createdAt: "2019-03-15T17:32:01.445Z"
         });
 
-        expect(nodes).to.deep.equal(<VisualizerNode[]>[
-            {
+        expect(nodes).to.deep.equal(<VisualizerGraph>{
+            [`Blog.Tag:${j.hash(tag)}`]: {
                 fact: {
                     type: "Blog.Tag",
                     hash: j.hash(tag),
@@ -125,7 +125,7 @@ describe("Jinaga Visualizer", () => {
                     ]
                 }
             },
-            {
+            [`Blog.Post.Tags:${j.hash(firstPostTags)}`]: {
                 fact: {
                     type: "Blog.Post.Tags",
                     hash: j.hash(firstPostTags),
@@ -143,7 +143,7 @@ describe("Jinaga Visualizer", () => {
                 },
                 successors: {}
             },
-            {
+            [`Blog.Post.Tags:${j.hash(secondPostTags)}`]: {
                 fact: {
                     type: "Blog.Post.Tags",
                     hash: j.hash(secondPostTags),
@@ -161,7 +161,7 @@ describe("Jinaga Visualizer", () => {
                 },
                 successors: {}
             }
-        ])
+        })
     });
 
     it("should handle simultaneous adds", async () => {
@@ -174,8 +174,8 @@ describe("Jinaga Visualizer", () => {
             tags: [ tag ]
         });
 
-        expect(nodes).to.deep.equal(<VisualizerNode[]>[
-            {
+        expect(nodes).to.deep.equal(<VisualizerGraph>{
+            [`Blog.Tag:${j.hash(tag)}`]: {
                 fact: {
                     type: "Blog.Tag",
                     hash: j.hash(tag),
@@ -190,7 +190,7 @@ describe("Jinaga Visualizer", () => {
                     ]
                 }
             },
-            {
+            [`Blog.Post.Tags:${j.hash(postTags)}`]: {
                 fact: {
                     type: "Blog.Post.Tags",
                     hash: j.hash(postTags),
@@ -206,6 +206,6 @@ describe("Jinaga Visualizer", () => {
                 },
                 successors: {}
             }
-        ])
+        })
     });
 });
