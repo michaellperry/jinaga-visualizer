@@ -42,7 +42,8 @@ describe("Jinaga Visualizer", () => {
                     },
                     predecessors: {}
                 },
-                successors: {}
+                successors: {},
+                depth: 0
             }
         });
     });
@@ -71,7 +72,8 @@ describe("Jinaga Visualizer", () => {
                     "tags:Blog.Post.Tags": [
                         j.hash(postTags)
                     ]
-                }
+                },
+                depth: 0
             },
             [`Blog.Post.Tags:${j.hash(postTags)}`]: {
                 fact: {
@@ -87,7 +89,8 @@ describe("Jinaga Visualizer", () => {
                         ]
                     }
                 },
-                successors: {}
+                successors: {},
+                depth: 1
             }
         })
     });
@@ -123,7 +126,8 @@ describe("Jinaga Visualizer", () => {
                         j.hash(firstPostTags),
                         j.hash(secondPostTags)
                     ]
-                }
+                },
+                depth: 0
             },
             [`Blog.Post.Tags:${j.hash(firstPostTags)}`]: {
                 fact: {
@@ -141,7 +145,8 @@ describe("Jinaga Visualizer", () => {
                         ]
                     }
                 },
-                successors: {}
+                successors: {},
+                depth: 1
             },
             [`Blog.Post.Tags:${j.hash(secondPostTags)}`]: {
                 fact: {
@@ -159,7 +164,8 @@ describe("Jinaga Visualizer", () => {
                         ]
                     }
                 },
-                successors: {}
+                successors: {},
+                depth: 1
             }
         })
     });
@@ -188,7 +194,8 @@ describe("Jinaga Visualizer", () => {
                     "tags:Blog.Post.Tags": [
                         j.hash(postTags)
                     ]
-                }
+                },
+                depth: 0
             },
             [`Blog.Post.Tags:${j.hash(postTags)}`]: {
                 fact: {
@@ -204,7 +211,8 @@ describe("Jinaga Visualizer", () => {
                         ]
                     }
                 },
-                successors: {}
+                successors: {},
+                depth: 1
             }
         })
     });

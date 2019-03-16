@@ -7,6 +7,7 @@ export type SuccessorCollection = {
 export interface VisualizerNode {
     fact: FactRecord;
     successors: SuccessorCollection;
+    depth: number;
 }
 
 export type VisualizerGraph = {

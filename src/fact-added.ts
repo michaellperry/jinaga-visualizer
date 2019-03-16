@@ -1,4 +1,4 @@
-import { FactRecord, FactReference } from "jinaga";
+import { FactRecord, FactReference, PredecessorCollection } from "jinaga";
 import { SuccessorCollection, VisualizerNode, VisualizerGraph } from "./visualizer-node";
 
 export type Mutator<T> = (transformer: (oldValue: T) => T) => void;
@@ -73,11 +73,42 @@ function* predecessorRoles(targetReference: FactReference, newRecord: FactRecord
 }
 
 function addNewVisualizerNode(factRecord: FactRecord): Transformer {
-    return oldValue => ({
+    return oldValue => transformAddNewVisualizerNode(factRecord, oldValue);
+}
+
+function transformAddNewVisualizerNode(factRecord: FactRecord, oldValue: VisualizerGraph) {
+    const predecessorDepths = Array.from(allPredecessors(factRecord.predecessors))
+        .map(r => lookup(oldValue, r))
+        .reduce((a, b) => a.concat(b), [])
+        .map(r => r.depth);
+    const depth = predecessorDepths.length > 0
+        ? Math.max(...predecessorDepths) + 1 : 0;
+    return ({
         ...oldValue,
         [`${factRecord.type}:${factRecord.hash}`]: {
             fact: factRecord,
-            successors: {}
+            successors: {},
+            depth
         }
     });
+}
+
+function lookup(graph: VisualizerGraph, reference: FactReference) {
+    const key = `${reference.type}:${reference.hash}`;
+    const node = graph[key];
+    return node ? [ node ] : [];
+}
+
+function* allPredecessors(predecessorCollection: PredecessorCollection) {
+    for (const role in predecessorCollection) {
+        const predecessors = predecessorCollection[role];
+        if (Array.isArray(predecessors)) {
+            for (let index = 0; index < predecessors.length; index++) {
+                yield predecessors[index];
+            }
+        }
+        else {
+            yield predecessors;
+        }
+    }
 }
