@@ -1,5 +1,5 @@
 import { FactRecord, FactReference, PredecessorCollection } from "jinaga";
-import { SuccessorCollection, VisualizerNode, VisualizerGraph } from "./visualizer-node";
+import { SuccessorCollection, VisualizerGraph } from "./visualizer-node";
 
 export type Mutator<T> = (transformer: (oldValue: T) => T) => void;
 
@@ -20,21 +20,29 @@ function compose(a: Transformer, b: Transformer): Transformer {
 }
 
 function addSuccessors(factRecord: FactRecord): Transformer {
-    return oldValue => Object.keys(oldValue).reduce((graph, key) => ({
-        ...graph,
-        [key]: {
-            ...oldValue[key],
-            successors: Array.from(predecessorRoles(oldValue[key].fact, factRecord))
-                .reduce((successors, role) => addSuccessor(successors, role, factRecord), oldValue[key].successors)
-        }
-    }), {} as VisualizerGraph);
+    return oldValue => allPredecessorsAndRoles(factRecord)
+        .map(({ role, predecessor }) => ({
+            role,
+            key: nodeKey(predecessor)
+        }))
+        .filter(({ key }) => oldValue.hasOwnProperty(key))
+        .reduce((graph, { role, key }) => ({
+            ...graph,
+            [key]: {
+                ...graph[key],
+                successors: addSuccessor(
+                    graph[key].successors,
+                    role,
+                    factRecord)
+            }
+        }), oldValue);
 }
 
 function addSuccessor(
     successors: SuccessorCollection,
     role: string,
     successorReference: FactReference
-) {
+): SuccessorCollection {
     const roleAndType = `${role}:${successorReference.type}`;
     const oldHashes = successors[roleAndType];
     const hashes = oldHashes ? [
@@ -49,43 +57,20 @@ function addSuccessor(
     };
 }
 
-function* predecessorRoles(targetReference: FactReference, newRecord: FactRecord) {
-    for (const role in newRecord.predecessors) {
-        const predecessors = newRecord.predecessors[role];
-        if (Array.isArray(predecessors)) {
-            for (let index = 0; index < predecessors.length; index++) {
-                const p = predecessors[index];
-                if (p.hash === targetReference.hash &&
-                    p.type === targetReference.type
-                ) {
-                    yield role;
-                }
-            }
-        }
-        else {
-            if (predecessors.hash === targetReference.hash &&
-                predecessors.type === targetReference.type
-            ) {
-                yield role;
-            }
-        }
-    }
-}
-
 function addNewVisualizerNode(factRecord: FactRecord): Transformer {
     return oldValue => transformAddNewVisualizerNode(factRecord, oldValue);
 }
 
 function transformAddNewVisualizerNode(factRecord: FactRecord, oldValue: VisualizerGraph) {
-    const predecessorDepths = Array.from(allPredecessors(factRecord.predecessors))
-        .map(r => lookup(oldValue, r))
+    const predecessorDepths = allPredecessorsAndRoles(factRecord)
+        .map(({ predecessor }) => lookup(oldValue, predecessor))
         .reduce((a, b) => a.concat(b), [])
         .map(r => r.depth);
     const depth = predecessorDepths.length > 0
         ? Math.max(...predecessorDepths) + 1 : 0;
     return ({
         ...oldValue,
-        [`${factRecord.type}:${factRecord.hash}`]: {
+        [nodeKey(factRecord)]: {
             fact: factRecord,
             successors: {},
             depth
@@ -93,22 +78,36 @@ function transformAddNewVisualizerNode(factRecord: FactRecord, oldValue: Visuali
     });
 }
 
+function nodeKey(factRecord: FactReference) {
+    return `${factRecord.type}:${factRecord.hash}`;
+}
+
 function lookup(graph: VisualizerGraph, reference: FactReference) {
-    const key = `${reference.type}:${reference.hash}`;
+    const key = nodeKey(reference);
     const node = graph[key];
     return node ? [ node ] : [];
 }
 
-function* allPredecessors(predecessorCollection: PredecessorCollection) {
+function allPredecessorsAndRoles(factRecord: FactRecord) {
+    return Array.from(allPredecessorsAndRolesGenerator(factRecord.predecessors));
+}
+
+function* allPredecessorsAndRolesGenerator(predecessorCollection: PredecessorCollection) {
     for (const role in predecessorCollection) {
         const predecessors = predecessorCollection[role];
         if (Array.isArray(predecessors)) {
             for (let index = 0; index < predecessors.length; index++) {
-                yield predecessors[index];
+                yield {
+                    role,
+                    predecessor: predecessors[index]
+                };
             }
         }
         else {
-            yield predecessors;
+            yield {
+                role,
+                predecessor: predecessors
+            };
         }
     }
 }
