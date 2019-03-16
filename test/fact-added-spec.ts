@@ -3,7 +3,7 @@ import { Jinaga, JinagaBrowser } from "jinaga";
 import { factAdded } from "../src/fact-added";
 import { VisualizerGraph } from "../src/visualizer-node";
 
-describe("Jinaga Visualizer", () => {
+describe("Fact Added", () => {
     let nodes = {} as VisualizerGraph;
     let j = null as Jinaga;
     let dispose = () => {};
