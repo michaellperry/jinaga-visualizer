@@ -43,7 +43,9 @@ describe("Fact Added", () => {
                     predecessors: {}
                 },
                 successors: {},
-                depth: 0
+                depth: 0,
+                left: 0,
+                right: 1
             }
         });
     });
@@ -70,10 +72,12 @@ describe("Fact Added", () => {
                 },
                 successors: {
                     "tags:Blog.Post.Tags": [
-                        j.hash(postTags)
+                        `Blog.Post.Tags:${j.hash(postTags)}`
                     ]
                 },
-                depth: 0
+                depth: 0,
+                left: 0,
+                right: 1
             },
             [`Blog.Post.Tags:${j.hash(postTags)}`]: {
                 fact: {
@@ -90,7 +94,9 @@ describe("Fact Added", () => {
                     }
                 },
                 successors: {},
-                depth: 1
+                depth: 1,
+                left: 0,
+                right: 1
             }
         })
     });
@@ -123,11 +129,13 @@ describe("Fact Added", () => {
                 },
                 successors: {
                     "tags:Blog.Post.Tags": [
-                        j.hash(firstPostTags),
-                        j.hash(secondPostTags)
+                        `Blog.Post.Tags:${j.hash(firstPostTags)}`,
+                        `Blog.Post.Tags:${j.hash(secondPostTags)}`
                     ]
                 },
-                depth: 0
+                depth: 0,
+                left: 0,
+                right: 2
             },
             [`Blog.Post.Tags:${j.hash(firstPostTags)}`]: {
                 fact: {
@@ -146,7 +154,9 @@ describe("Fact Added", () => {
                     }
                 },
                 successors: {},
-                depth: 1
+                depth: 1,
+                left: 0,
+                right: 1
             },
             [`Blog.Post.Tags:${j.hash(secondPostTags)}`]: {
                 fact: {
@@ -165,7 +175,9 @@ describe("Fact Added", () => {
                     }
                 },
                 successors: {},
-                depth: 1
+                depth: 1,
+                left: 1,
+                right: 2
             }
         })
     });
@@ -192,10 +204,12 @@ describe("Fact Added", () => {
                 },
                 successors: {
                     "tags:Blog.Post.Tags": [
-                        j.hash(postTags)
+                        `Blog.Post.Tags:${j.hash(postTags)}`
                     ]
                 },
-                depth: 0
+                depth: 0,
+                left: 0,
+                right: 1
             },
             [`Blog.Post.Tags:${j.hash(postTags)}`]: {
                 fact: {
@@ -212,7 +226,9 @@ describe("Fact Added", () => {
                     }
                 },
                 successors: {},
-                depth: 1
+                depth: 1,
+                left: 0,
+                right: 1
             }
         })
     });

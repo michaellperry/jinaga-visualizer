@@ -8,6 +8,8 @@ export interface VisualizerNode {
     fact: FactRecord;
     successors: SuccessorCollection;
     depth: number;
+    left: number;
+    right: number;
 }
 
 export type VisualizerGraph = {
